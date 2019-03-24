@@ -1,55 +1,104 @@
-import React from "react";
-import axios from "axios";
-import { Link, } from "react-router-dom";
-import { Button, Card, Header, } from "semantic-ui-react";
+
+import React from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+import { Container, Button, Card, Grid, Image, Icon, } from 'semantic-ui-react';
+import styled from 'styled-components';
+
 
 class Departments extends React.Component {
-  state = { departments: [], };
+  state = { departments: [] }
 
   componentDidMount() {
-    axios.get("/api/departments")
-      .then( res => {
-        this.setState({ departments: res.data, });
+    axios.get("api/departments")
+      .then(res => {
+        this.setState({ departments: res.data })
+      })
+      .catch(err => {
+        console.log(err.response)
       })
   }
 
-  renderDepartments = () => {
-    const { departments, } = this.state;
-
-    if (departments.length <= 0)
-      return <Header as="h2">No Departments Found</Header>
-    return departments.map( department => (
-      <Card>
-        <Card.Content>
-          <Card.Header>{ department.name }</Card.Header>
-          <Card.Description>
-            { department.description }
-          </Card.Description>
-        </Card.Content>
-        <Card.Content extra>
-        <Button as={Link} to={`/departments/${department.id}`} color="blue">
-          View
-        </Button>
-        </Card.Content>
-      </Card>
+  showDepts = () => {
+    return this.state.departments.map(d => (
+      <Link to={`departments/${d.id}`}>
+        <div style={{ padding: '20px', border: '2px solid grey' }}>
+          <CardStyles>
+            <Card.Header
+              style={{
+                fontSize: "20px",
+                height: '40px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              {d.name}
+            </Card.Header>
+            <Card.Content
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                }}>
+              <Image
+                style={{
+                  height: '120px',
+                  width: '160px',
+                }}
+                src={"https://loremflickr.com/400/400/commerce?" + Math.random()}
+                alt="Department" />
+            </Card.Content>
+          </CardStyles>
+        </div>
+      </Link>
     ))
   }
 
   render() {
     return (
-      <div>
-        <Header as="h1">Departments</Header>
-        <Button as={Link} to="/departments/new" color="blue">
-          Add Department
-        </Button>
-        <br />
-        <br />
-        <Card.Group>
-          { this.renderDepartments() }
-        </Card.Group>
-      </div>
+      <Page>
+        <Container>
+          <ButtonStyle>
+            <Link to="/departments/new">
+              <Button inverted color='green'>
+                <Icon name="add" />
+                Add a Department
+              </Button>
+            </Link>
+          </ButtonStyle>
+          <Grid>
+            <Grid.Row>
+              <Grid.Column relaxed columns={4}>
+                <CardGroup>
+                  {this.showDepts()}
+                </CardGroup>
+              </Grid.Column>
+            </Grid.Row>
+          </Grid>
+        </Container>
+      </Page>
     )
   }
 }
 
-export default Departments;
+const CardStyles = styled(Card)`
+  height: 200px;
+  width: 180px;
+`
+
+const CardGroup = styled(Card.Group)`
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+`
+const Page = styled.div`
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+`
+const ButtonStyle = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+`
+export default Departments

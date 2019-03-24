@@ -1,69 +1,68 @@
-import React from "react";
-import axios from "axios";
-import { Form, Header, } from "semantic-ui-react";
+
+import React from 'react';
+import axios from 'axios';
+import { Form, Button, Container } from 'semantic-ui-react';
+
 
 class DepartmentForm extends React.Component {
-  defaultValues = { name: "", price: "", description: "", };
-  state = { ...this.defaultValues, };
+  state = { name: '' }
 
-  handleSubmit = (e) => {
-    e.preventDefault();
-    const department = { ...this.state, };
-    axios.post("/api/departments", department)
-      .then( res => {
-        this.props.history.goBack();
-      })
-    this.setState({ ...this.defaultValues, });
+  componentDidMount() {
+    const { match: { params: { id } } } = this.props
+    if (id)
+      axios.get(`/api/departments/${id}`)
+        .then(res => {
+          debugger
+          this.setState({ name: res.data.name })
+        })
+        .catch(err => {
+          console.log(err.response)
+        })
   }
 
   handleChange = (e) => {
-    const { target: { name, value, } } = e;
-    this.setState({ [name]: value, });
+    const { target: { name, value } } = e
+    this.setState({ [name]: value })
+  }
+
+  handleSubmit = (e) => {
+    e.preventDefault()
+    const department = { ...this.state }
+    const { match: { params: { id } } } = this.props
+    if (id) {
+      axios.put(`/api/departments/${id}`, department)
+        .then(res => {
+          this.props.history.push(`/departments/${id}`)
+        })
+    } else {
+      axios.post(`/api/departments`, department)
+        .then(res => {
+          this.props.history.push("/departments")
+        })
+    }
   }
 
   render() {
-    const { name, description, price, } = this.state;
-
+    const { name } = this.state
     return (
-      <div>
-        <Header as="h1">New Department</Header>
+      <Container style={{ marginTop: "100px" }}>
         <Form onSubmit={this.handleSubmit}>
-          <Form.Group widths="equal">
-            <Form.Input 
-              label="Name"
-              placeholder="Name"
-              name="name"
-              required
-              onChange={this.handleChange}
-              value={name}
-            />
-            </Form.Group>
-            <Form.Group widths="equal">
-            <Form.Input 
-              label="Description"
-              placeholder="Description"
-              name="description"
-              required
-              onChange={this.handleChange}
-              value={description}
-            />
-          </Form.Group>
-          <Form.Group widths="equal">
-            <Form.Input 
-              label="Price"
-              placeholder="Price"
-              name="price"
-              type="number"
-              required
-              onChange={this.handleChange}
-              value={price}
-            />
-          </Form.Group>
-          <Form.Button color="blue">Submit</Form.Button>
+          <input
+            name="name"
+            placeholder="Department Name"
+            required
+            value={name}
+            onChange={this.handleChange}
+          />
+          <Button
+            color='green'
+            style={{
+              marginTop: "30px",
+            }}>Submit</Button>
         </Form>
-      </div>
+      </Container>
     )
   }
 }
 
-export default DepartmentForm;
+export default DepartmentForm

@@ -5,4 +5,5 @@ const About = () => (
   <Header as="h1">About</Header>
 )
 
+
 export default About;
